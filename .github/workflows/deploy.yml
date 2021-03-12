@@ -38,4 +38,4 @@ jobs:
           build-args:
             DATABASE_TYPE=postgresql
           tags: |
-            ghcr.io/user/app:latest
+            ghcr.io/hipsterbrown/umami:latest
