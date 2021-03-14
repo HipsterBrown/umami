@@ -16,6 +16,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -53,6 +55,9 @@ jobs:
           git init
           git config user.email "headhipster@hipsterbrown.com"
           git config user.name "HipsterBrown"
+          git config pack.windowMemory "100m"
+          git config pack.packSizeLimit "100m"
+          git config pack.threads "1"
           git add Dockerfile
           git commit -m "Add Dockerfile"
           commit=$(git rev-parse HEAD 2>/dev/null || true)
