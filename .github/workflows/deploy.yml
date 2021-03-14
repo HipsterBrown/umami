@@ -39,4 +39,31 @@ jobs:
           build-args:
             DATABASE_TYPE=postgresql
           tags: |
-            ghcr.io/hipsterbrown/umami:latest
+            ghcr.io/hipsterbrown/umami:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [docker]
+    steps:
+      -
+        name: Create deploy repo
+        id: deploy_repp
+        run: |
+          echo "FROM $IMAGE_URL" > Dockerfile
+          git init
+          git config user.email "headhipster@hipsterbrown.com"
+          git config user.name "HipsterBrown"
+          git add Dockerfile
+          git commit -m "Add Dockerfile"
+          commit=$(git rev-parse HEAD 2>/dev/null || true)
+          echo ::set-output name=commit_sha::$commit
+        env:
+          IMAGE_URL: ghcr.io/hipsterbrown/umami:${{ github.sha }}
+      -
+        name: Push to dokku
+        uses: dokku/github-action@v1.0.2
+        with:
+          git_remote_url: 'ssh://dokku@hipsterbrown.com:22/analytics'
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          git_push_flags: '--force'
+          ci_commit: ${{ steps.deploy_repo.outputs.commit_sha }}
